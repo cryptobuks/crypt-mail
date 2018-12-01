@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package protocol;
+
+
+service Alice {
+    rpc HandShake(HandShakeRequest) returns (HandShakeResponse);
+    rpc Query(QueryRequest) returns (QueryResponse);
+    rpc Save(SaveRequest) returns (SaveResponse);
+    rpc Load(LoadRequest) returns (LoadResponse);
+}
+
+message HandShakeRequest {
+    uint64 session_id = 1;
+}
+
+message HandShakeResponse {
+    uint64 session_id = 1;
+    string pub_key = 2;
+    string priv_key = 3;
+}
+
+message Account {
+    string alias = 1;
+    string pub_key = 2;
+    string cipher = 3;
+    string encrypted_priv_key = 4;
+    string iv = 5;
+    string mac = 6;
+    uint32 version = 7;
+}
+
+message QueryRequest {
+    uint64 session_id = 1;
+}
+
+message QueryResponse {
+    uint64 session_id = 1;
+    repeated Account accounts = 2;
+}
+
+message SaveRequest {
+    uint64 session_id = 1;
+    string filename = 2;
+    Account account = 3;
+}
+
+message SaveResponse {
+    uint64 session_id = 1;
+    bool status = 2;
+    string msg = 3;
+}
+
+message LoadRequest {
+    uint64 session_id = 1;
+    string alias = 2;
+    string pub_key = 3;
+}
+
+message LoadResponse {
+    uint64 = 1;
+    Account account = 2;
+}
