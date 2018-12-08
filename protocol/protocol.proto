@@ -7,7 +7,6 @@ service Alice {
     rpc HandShake(HandShakeRequest) returns (HandShakeResponse);
     rpc Query(QueryRequest) returns (QueryResponse);
     rpc Save(SaveRequest) returns (SaveResponse);
-    rpc Load(LoadRequest) returns (LoadResponse);
 }
 
 message HandShakeRequest {
@@ -32,6 +31,7 @@ message Account {
 
 message QueryRequest {
     uint64 session_id = 1;
+    string name = 2;
 }
 
 message QueryResponse {
@@ -41,7 +41,7 @@ message QueryResponse {
 
 message SaveRequest {
     uint64 session_id = 1;
-    string filename = 2;
+    string name = 2;
     Account account = 3;
 }
 
@@ -49,15 +49,4 @@ message SaveResponse {
     uint64 session_id = 1;
     bool status = 2;
     string msg = 3;
-}
-
-message LoadRequest {
-    uint64 session_id = 1;
-    string alias = 2;
-    string pub_key = 3;
-}
-
-message LoadResponse {
-    uint64 = 1;
-    Account account = 2;
 }
