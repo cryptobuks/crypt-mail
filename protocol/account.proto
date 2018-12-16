@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package protocol;
+
+message Account {
+    string alias = 1;
+    string pub_key = 2;
+    string cipher = 3;
+    string encrypted_priv_key = 4;
+    string iv = 5;
+    string mac = 6;
+    uint32 version = 7;
+}
+
+message PrivAccount {
+    string alias = 1;
+    string pub_key = 2;
+    string priv_key = 3;
+    uint64 expire = 4;
+}

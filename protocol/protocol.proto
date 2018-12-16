@@ -2,11 +2,17 @@ syntax = "proto3";
 
 package protocol;
 
+import "account.proto";
+
 
 service Alice {
     rpc HandShake(HandShakeRequest) returns (HandShakeResponse);
     rpc Query(QueryRequest) returns (QueryResponse);
+    rpc Lock(LockRequest) returns (LockResponse);
+    // maybe split the action to unlock and load would be better
+    rpc Unlock(UnlockRequest) returns (UnlockResponse);
     rpc Save(SaveRequest) returns (SaveResponse);
+
 }
 
 message HandShakeRequest {
@@ -19,16 +25,6 @@ message HandShakeResponse {
     string priv_key = 3;
 }
 
-message Account {
-    string alias = 1;
-    string pub_key = 2;
-    string cipher = 3;
-    string encrypted_priv_key = 4;
-    string iv = 5;
-    string mac = 6;
-    uint32 version = 7;
-}
-
 message QueryRequest {
     uint64 session_id = 1;
     string name = 2;
@@ -37,6 +33,30 @@ message QueryRequest {
 message QueryResponse {
     uint64 session_id = 1;
     repeated Account accounts = 2;
+}
+
+message LockRequest {
+    uint64 session_id = 1;
+    string name = 2;
+}
+
+message LockResponse {
+    uint64 session_id = 1;
+    bool status = 2;
+    string msg = 3;
+}
+
+message UnlockRequest {
+    uint64 session_id = 1;
+    string name = 2;
+    string cipher = 3;
+}
+
+message UnlockResponse {
+    uint64 session_id = 1;
+    bool status = 2;
+    string msg = 3;
+    bytes encrypt_account = 4;
 }
 
 message SaveRequest {
