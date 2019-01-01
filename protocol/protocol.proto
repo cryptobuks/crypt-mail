@@ -11,23 +11,22 @@ service Alice {
     rpc Lock(LockRequest) returns (LockResponse);
     // maybe split the action to unlock and load would be better
     rpc Unlock(UnlockRequest) returns (UnlockResponse);
-    rpc Save(SaveRequest) returns (SaveResponse);
+    rpc Create(CreateRequest) returns (CreateResponse);
+    rpc Import(ImportRequest) returns (ImportResponse);
 
 }
 
-message HandShakeRequest {
-    uint64 session_id = 1;
-}
+message HandShakeRequest {}
 
 message HandShakeResponse {
     uint64 session_id = 1;
-    string pub_key = 2;
-    string priv_key = 3;
+    string s_pub_key = 2;
+    string s_priv_key = 3;
 }
 
 message QueryRequest {
     uint64 session_id = 1;
-    string name = 2;
+    string alias = 2;
 }
 
 message QueryResponse {
@@ -37,36 +36,46 @@ message QueryResponse {
 
 message LockRequest {
     uint64 session_id = 1;
-    string name = 2;
+    string alias = 2;
 }
 
 message LockResponse {
     uint64 session_id = 1;
-    bool status = 2;
-    string msg = 3;
 }
 
 message UnlockRequest {
     uint64 session_id = 1;
-    string name = 2;
-    string cipher = 3;
+    string alias = 2;
+    string passphrase = 3;
 }
 
 message UnlockResponse {
     uint64 session_id = 1;
-    bool status = 2;
-    string msg = 3;
-    bytes encrypt_account = 4;
 }
 
-message SaveRequest {
+// password need be encrypted by s_priv_key
+message CreateRequest{
     uint64 session_id = 1;
-    string name = 2;
-    Account account = 3;
+    // in cryptmail all people identified by pub-key and the alias only decided in the server's name
+    // just a alias of one pub key in local server
+    string alias = 2;
+    bool force = 3;
+    string passphrase = 4;
 }
 
-message SaveResponse {
+message CreateResponse {
     uint64 session_id = 1;
-    bool status = 2;
-    string msg = 3;
+}
+
+message ImportRequest{
+    uint64 session_id = 1;
+    string alias = 2;
+    bool force = 3;
+    string pub_key = 4;
+    string priv_key = 5;
+    string passphrase = 6;
+}
+
+message ImportResponse {
+    uint64 session_id = 1;
 }

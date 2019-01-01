@@ -2,16 +2,18 @@ package alice
 
 import (
 	"context"
+	"cryptmail/key"
 	"cryptmail/protocol"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/golang/protobuf/proto"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -21,8 +23,9 @@ import (
 )
 
 const (
-	PasswordLength    int   = 32
-	ExpirationSeconds int64 = 5 * 60
+	CurrentVersion    uint32 = 1
+	PasswordLength    int    = 32
+	ExpirationSeconds int64  = 5 * 60
 )
 
 type Alice struct {
@@ -77,15 +80,15 @@ func (a *Alice) Init() error {
 func (a *Alice) HandShake(ctx context.Context, in *protocol.HandShakeRequest) (*protocol.HandShakeResponse, error) {
 	// sessionId to mark different temporal key-pair
 	// implement temporal key-pair in next version
-	sessionId := in.SessionId
+	sessionId := GenerateUUID()
 	tempPrivKey := ""
 	tempPubKey := ""
-	return &protocol.HandShakeResponse{SessionId: sessionId, PubKey: tempPubKey, PrivKey: tempPrivKey}, nil
+	return &protocol.HandShakeResponse{SessionId: sessionId, SPubKey: tempPubKey, SPrivKey: tempPrivKey}, nil
 }
 
 func (a *Alice) Query(ctx context.Context, in *protocol.QueryRequest) (*protocol.QueryResponse, error) {
 	sessionId := in.SessionId
-	name := in.Name
+	name := in.Alias
 	var queryAccounts []*protocol.Account
 	if name == "" {
 		for _, v := range a.accounts {
@@ -99,35 +102,93 @@ func (a *Alice) Query(ctx context.Context, in *protocol.QueryRequest) (*protocol
 	return &protocol.QueryResponse{SessionId: sessionId, Accounts: queryAccounts}, nil
 }
 
-func (a *Alice) Save(ctx context.Context, in *protocol.SaveRequest) (*protocol.SaveResponse, error) {
+func (a *Alice) Create(ctx context.Context, in *protocol.CreateRequest) (*protocol.CreateResponse, error) {
 	sessionId := in.SessionId
-	name := in.Name
-	account := in.Account
-	err := a.writeToFile(name, account)
+	name := in.Alias
+	force := in.Force
+	cipheredPhrase := in.Passphrase
+	passphrase := cipheredPhrase
+	priv, err := key.GenerateKey()
 	if err != nil {
-		return &protocol.SaveResponse{SessionId: sessionId, Status: false, Msg: fmt.Sprintf("%v", err)}, err
-	} else {
-		return &protocol.SaveResponse{SessionId: sessionId, Status: true, Msg: ""}, nil
+		return &protocol.CreateResponse{SessionId: sessionId}, errors.New("generate priv key error")
+	}
+	pub, err := priv.PubKey()
+	if err != nil {
+		return &protocol.CreateResponse{SessionId: sessionId}, errors.New("generate pub key error")
 	}
 
+	if _, ok := a.accounts[name]; ok && !force {
+		return &protocol.CreateResponse{SessionId: sessionId}, errors.New(fmt.Sprintf("address alias %s has been used", name))
+	}
+	mac := hmac.New(sha256.New, []byte(passphrase))
+	mac.Write([]byte(priv.ToWIF()))
+	calcMac := mac.Sum(nil)
+	macText := base64.StdEncoding.EncodeToString(calcMac)
+	cipheredData, iv, err := a.encryptData([]byte(priv.ToWIF()), []byte(passphrase))
+	cipherText := base64.StdEncoding.EncodeToString(cipheredData)
+	ivText := base64.StdEncoding.EncodeToString(iv)
+	account := &protocol.Account{Alias: name, PubKey: pub.ToWIF(), Cipher: selectAESAlgorithm(32),
+		EncryptedPrivKey: cipherText, Iv: ivText, Mac: macText, Version: CurrentVersion}
+	privAccount := &protocol.PrivAccount{Alias: name, PubKey: pub.ToWIF(), PrivKey: priv.ToWIF(),
+		Expire: uint64(time.Now().Unix() + ExpirationSeconds)}
+	a.accounts[name] = account
+	a.unlocked[sessionId][name] = privAccount
+	err = a.writeToFile(name, account)
+	if err != nil {
+		return &protocol.CreateResponse{SessionId: sessionId}, errors.New("save account date into file failed")
+	} else {
+		return &protocol.CreateResponse{SessionId: sessionId}, nil
+	}
+}
+
+func (a *Alice) Import(ctx context.Context, in *protocol.ImportRequest) (*protocol.ImportResponse, error) {
+	sessionId := in.SessionId
+	name := in.Alias
+	force := in.Force
+	pubKey := in.PubKey
+	privKey := in.PrivKey
+	cipheredPhrase := in.Passphrase
+	passphrase := cipheredPhrase
+	if _, ok := a.accounts[name]; ok && !force {
+		return &protocol.ImportResponse{SessionId: sessionId}, errors.New(fmt.Sprintf("address alias %s has been used", name))
+	}
+	mac := hmac.New(sha256.New, []byte(passphrase))
+	mac.Write([]byte(privKey))
+	calcMac := mac.Sum(nil)
+	macText := base64.StdEncoding.EncodeToString(calcMac)
+	cipheredData, iv, err := a.encryptData([]byte(privKey), []byte(passphrase))
+	cipherText := base64.StdEncoding.EncodeToString(cipheredData)
+	ivText := base64.StdEncoding.EncodeToString(iv)
+	account := &protocol.Account{Alias: name, PubKey: pubKey, Cipher: selectAESAlgorithm(32),
+		EncryptedPrivKey: cipherText, Iv: ivText, Mac: macText, Version: CurrentVersion}
+	privAccount := &protocol.PrivAccount{Alias: name, PubKey: pubKey, PrivKey: privKey,
+		Expire: uint64(time.Now().Unix() + ExpirationSeconds)}
+	a.accounts[name] = account
+	a.unlocked[sessionId][name] = privAccount
+	err = a.writeToFile(name, account)
+	if err != nil {
+		return &protocol.ImportResponse{SessionId: sessionId}, errors.New("save account date into file failed")
+	} else {
+		return &protocol.ImportResponse{SessionId: sessionId}, nil
+	}
 }
 
 func (a *Alice) Lock(ctx context.Context, in *protocol.LockRequest) (*protocol.LockResponse, error) {
 	sessionId := in.SessionId
-	name := in.Name
+	name := in.Alias
 	if _, ok := a.accounts[name]; !ok {
 		msg := fmt.Sprintf("unknown account %s", name)
-		return &protocol.LockResponse{SessionId: sessionId, Status: false, Msg: msg}, errors.New(msg)
+		return &protocol.LockResponse{SessionId: sessionId}, errors.New(msg)
 	} else {
 		unlocked, ok := a.unlocked[sessionId]
 		if !ok {
-			return &protocol.LockResponse{SessionId: sessionId, Status: false, Msg: "unknown session id"},
+			return &protocol.LockResponse{SessionId: sessionId},
 				errors.New("unknown session id")
 		}
 		if _, ok := unlocked[name]; !ok {
-			return &protocol.LockResponse{SessionId: sessionId, Status: true, Msg: "success"}, nil
+			return &protocol.LockResponse{SessionId: sessionId}, nil
 		} else {
-			return &protocol.LockResponse{SessionId: sessionId, Status: true, Msg: "no such account"},
+			return &protocol.LockResponse{SessionId: sessionId},
 				errors.New("no such account")
 		}
 	}
@@ -137,24 +198,24 @@ func (a *Alice) Lock(ctx context.Context, in *protocol.LockRequest) (*protocol.L
 // but not now
 func (a *Alice) Unlock(ctx context.Context, in *protocol.UnlockRequest) (*protocol.UnlockResponse, error) {
 	sessionId := in.SessionId
-	name := in.Name
-	// todo
-	cipher := in.Cipher
-	passphare := cipher
+	name := in.Alias
+	// todo: need decrypt cipher
+	cipheredData := in.Passphrase
+	passphare := cipheredData
 	if acc, ok := a.accounts[name]; !ok {
-		return &protocol.UnlockResponse{SessionId: sessionId, Status: false, Msg: "unknown name"}, errors.New("unknown name")
+		return &protocol.UnlockResponse{SessionId: sessionId}, errors.New("unknown name")
 	} else {
 		privAcc, err := a.decryptAccount(acc, []byte(passphare))
 		if err != nil {
-			return &protocol.UnlockResponse{SessionId: sessionId, Status: false, Msg: "decrypt account failed"}, errors.New("decrypt account failed")
+			return &protocol.UnlockResponse{SessionId: sessionId}, errors.New("decrypt account failed")
 		}
 		unlocked := a.unlocked[sessionId]
 		unlocked[name] = privAcc
-		data, err := proto.Marshal(privAcc)
+		//data, err := proto.Marshal(privAcc)
 		if err != nil {
-			return &protocol.UnlockResponse{SessionId: sessionId, Status: false, Msg: "proto marshal failed"}, errors.New("proto marshal failed")
+			return &protocol.UnlockResponse{SessionId: sessionId}, errors.New("proto marshal failed")
 		}
-		return &protocol.UnlockResponse{SessionId: sessionId, Status: true, EncryptAccount: data}, nil
+		return &protocol.UnlockResponse{SessionId: sessionId}, nil
 	}
 }
 
@@ -195,9 +256,25 @@ func (a *Alice) decryptAccount(acc *protocol.Account, passphrase []byte) (*proto
 
 }
 
+func (a *Alice) encryptData(data, passphrase []byte) ([]byte, []byte, error) {
+	seed := a.hashPassphraseToFixLength(passphrase)
+	block, err := aes.NewCipher(seed)
+	if err != nil {
+		return []byte{}, []byte{}, err
+	}
+	cipherdata := make([]byte, len(data))
+	iv := make([]byte, aes.BlockSize)
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		return []byte{}, []byte{}, err
+	}
+	stream := cipher.NewCTR(block, iv)
+	stream.XORKeyStream(cipherdata, data)
+	return cipherdata, iv, nil
+}
+
 func (a *Alice) decryptData(cipherData, iv, passphrase []byte) ([]byte, error) {
-	key := a.hashPassphraseToFixLength(passphrase)
-	block, err := aes.NewCipher(key)
+	seed := a.hashPassphraseToFixLength(passphrase)
+	block, err := aes.NewCipher(seed)
 	if err != nil {
 		return []byte{}, err
 	}

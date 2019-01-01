@@ -23,7 +23,6 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type HandShakeRequest struct {
-	SessionId            uint64   `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -54,17 +53,10 @@ func (m *HandShakeRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_HandShakeRequest proto.InternalMessageInfo
 
-func (m *HandShakeRequest) GetSessionId() uint64 {
-	if m != nil {
-		return m.SessionId
-	}
-	return 0
-}
-
 type HandShakeResponse struct {
 	SessionId            uint64   `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	PubKey               string   `protobuf:"bytes,2,opt,name=pub_key,json=pubKey,proto3" json:"pub_key,omitempty"`
-	PrivKey              string   `protobuf:"bytes,3,opt,name=priv_key,json=privKey,proto3" json:"priv_key,omitempty"`
+	SPubKey              string   `protobuf:"bytes,2,opt,name=s_pub_key,json=sPubKey,proto3" json:"s_pub_key,omitempty"`
+	SPrivKey             string   `protobuf:"bytes,3,opt,name=s_priv_key,json=sPrivKey,proto3" json:"s_priv_key,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -102,23 +94,23 @@ func (m *HandShakeResponse) GetSessionId() uint64 {
 	return 0
 }
 
-func (m *HandShakeResponse) GetPubKey() string {
+func (m *HandShakeResponse) GetSPubKey() string {
 	if m != nil {
-		return m.PubKey
+		return m.SPubKey
 	}
 	return ""
 }
 
-func (m *HandShakeResponse) GetPrivKey() string {
+func (m *HandShakeResponse) GetSPrivKey() string {
 	if m != nil {
-		return m.PrivKey
+		return m.SPrivKey
 	}
 	return ""
 }
 
 type QueryRequest struct {
 	SessionId            uint64   `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Alias                string   `protobuf:"bytes,2,opt,name=alias,proto3" json:"alias,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -156,9 +148,9 @@ func (m *QueryRequest) GetSessionId() uint64 {
 	return 0
 }
 
-func (m *QueryRequest) GetName() string {
+func (m *QueryRequest) GetAlias() string {
 	if m != nil {
-		return m.Name
+		return m.Alias
 	}
 	return ""
 }
@@ -212,7 +204,7 @@ func (m *QueryResponse) GetAccounts() []*Account {
 
 type LockRequest struct {
 	SessionId            uint64   `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Alias                string   `protobuf:"bytes,2,opt,name=alias,proto3" json:"alias,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -250,17 +242,15 @@ func (m *LockRequest) GetSessionId() uint64 {
 	return 0
 }
 
-func (m *LockRequest) GetName() string {
+func (m *LockRequest) GetAlias() string {
 	if m != nil {
-		return m.Name
+		return m.Alias
 	}
 	return ""
 }
 
 type LockResponse struct {
 	SessionId            uint64   `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	Status               bool     `protobuf:"varint,2,opt,name=status,proto3" json:"status,omitempty"`
-	Msg                  string   `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -298,24 +288,10 @@ func (m *LockResponse) GetSessionId() uint64 {
 	return 0
 }
 
-func (m *LockResponse) GetStatus() bool {
-	if m != nil {
-		return m.Status
-	}
-	return false
-}
-
-func (m *LockResponse) GetMsg() string {
-	if m != nil {
-		return m.Msg
-	}
-	return ""
-}
-
 type UnlockRequest struct {
 	SessionId            uint64   `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Cipher               string   `protobuf:"bytes,3,opt,name=cipher,proto3" json:"cipher,omitempty"`
+	Alias                string   `protobuf:"bytes,2,opt,name=alias,proto3" json:"alias,omitempty"`
+	Passphrase           string   `protobuf:"bytes,3,opt,name=passphrase,proto3" json:"passphrase,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -353,25 +329,22 @@ func (m *UnlockRequest) GetSessionId() uint64 {
 	return 0
 }
 
-func (m *UnlockRequest) GetName() string {
+func (m *UnlockRequest) GetAlias() string {
 	if m != nil {
-		return m.Name
+		return m.Alias
 	}
 	return ""
 }
 
-func (m *UnlockRequest) GetCipher() string {
+func (m *UnlockRequest) GetPassphrase() string {
 	if m != nil {
-		return m.Cipher
+		return m.Passphrase
 	}
 	return ""
 }
 
 type UnlockResponse struct {
 	SessionId            uint64   `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	Status               bool     `protobuf:"varint,2,opt,name=status,proto3" json:"status,omitempty"`
-	Msg                  string   `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
-	EncryptAccount       []byte   `protobuf:"bytes,4,opt,name=encrypt_account,json=encryptAccount,proto3" json:"encrypt_account,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -409,135 +382,227 @@ func (m *UnlockResponse) GetSessionId() uint64 {
 	return 0
 }
 
-func (m *UnlockResponse) GetStatus() bool {
-	if m != nil {
-		return m.Status
-	}
-	return false
-}
-
-func (m *UnlockResponse) GetMsg() string {
-	if m != nil {
-		return m.Msg
-	}
-	return ""
-}
-
-func (m *UnlockResponse) GetEncryptAccount() []byte {
-	if m != nil {
-		return m.EncryptAccount
-	}
-	return nil
-}
-
-type SaveRequest struct {
-	SessionId            uint64   `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Account              *Account `protobuf:"bytes,3,opt,name=account,proto3" json:"account,omitempty"`
+// password need be encrypted by s_priv_key
+type CreateRequest struct {
+	SessionId uint64 `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	// in cryptmail all people identified by pub-key and the alias only decided in the server's name
+	// just a alias of one pub key in local server
+	Alias                string   `protobuf:"bytes,2,opt,name=alias,proto3" json:"alias,omitempty"`
+	Force                bool     `protobuf:"varint,3,opt,name=force,proto3" json:"force,omitempty"`
+	Passphrase           string   `protobuf:"bytes,4,opt,name=passphrase,proto3" json:"passphrase,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SaveRequest) Reset()         { *m = SaveRequest{} }
-func (m *SaveRequest) String() string { return proto.CompactTextString(m) }
-func (*SaveRequest) ProtoMessage()    {}
-func (*SaveRequest) Descriptor() ([]byte, []int) {
+func (m *CreateRequest) Reset()         { *m = CreateRequest{} }
+func (m *CreateRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateRequest) ProtoMessage()    {}
+func (*CreateRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2bc2336598a3f7e0, []int{8}
 }
 
-func (m *SaveRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_SaveRequest.Unmarshal(m, b)
+func (m *CreateRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateRequest.Unmarshal(m, b)
 }
-func (m *SaveRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_SaveRequest.Marshal(b, m, deterministic)
+func (m *CreateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateRequest.Marshal(b, m, deterministic)
 }
-func (m *SaveRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SaveRequest.Merge(m, src)
+func (m *CreateRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateRequest.Merge(m, src)
 }
-func (m *SaveRequest) XXX_Size() int {
-	return xxx_messageInfo_SaveRequest.Size(m)
+func (m *CreateRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateRequest.Size(m)
 }
-func (m *SaveRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_SaveRequest.DiscardUnknown(m)
+func (m *CreateRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_SaveRequest proto.InternalMessageInfo
+var xxx_messageInfo_CreateRequest proto.InternalMessageInfo
 
-func (m *SaveRequest) GetSessionId() uint64 {
+func (m *CreateRequest) GetSessionId() uint64 {
 	if m != nil {
 		return m.SessionId
 	}
 	return 0
 }
 
-func (m *SaveRequest) GetName() string {
+func (m *CreateRequest) GetAlias() string {
 	if m != nil {
-		return m.Name
+		return m.Alias
 	}
 	return ""
 }
 
-func (m *SaveRequest) GetAccount() *Account {
+func (m *CreateRequest) GetForce() bool {
 	if m != nil {
-		return m.Account
+		return m.Force
 	}
-	return nil
+	return false
 }
 
-type SaveResponse struct {
+func (m *CreateRequest) GetPassphrase() string {
+	if m != nil {
+		return m.Passphrase
+	}
+	return ""
+}
+
+type CreateResponse struct {
 	SessionId            uint64   `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	Status               bool     `protobuf:"varint,2,opt,name=status,proto3" json:"status,omitempty"`
-	Msg                  string   `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SaveResponse) Reset()         { *m = SaveResponse{} }
-func (m *SaveResponse) String() string { return proto.CompactTextString(m) }
-func (*SaveResponse) ProtoMessage()    {}
-func (*SaveResponse) Descriptor() ([]byte, []int) {
+func (m *CreateResponse) Reset()         { *m = CreateResponse{} }
+func (m *CreateResponse) String() string { return proto.CompactTextString(m) }
+func (*CreateResponse) ProtoMessage()    {}
+func (*CreateResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2bc2336598a3f7e0, []int{9}
 }
 
-func (m *SaveResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_SaveResponse.Unmarshal(m, b)
+func (m *CreateResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateResponse.Unmarshal(m, b)
 }
-func (m *SaveResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_SaveResponse.Marshal(b, m, deterministic)
+func (m *CreateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateResponse.Marshal(b, m, deterministic)
 }
-func (m *SaveResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SaveResponse.Merge(m, src)
+func (m *CreateResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateResponse.Merge(m, src)
 }
-func (m *SaveResponse) XXX_Size() int {
-	return xxx_messageInfo_SaveResponse.Size(m)
+func (m *CreateResponse) XXX_Size() int {
+	return xxx_messageInfo_CreateResponse.Size(m)
 }
-func (m *SaveResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_SaveResponse.DiscardUnknown(m)
+func (m *CreateResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_SaveResponse proto.InternalMessageInfo
+var xxx_messageInfo_CreateResponse proto.InternalMessageInfo
 
-func (m *SaveResponse) GetSessionId() uint64 {
+func (m *CreateResponse) GetSessionId() uint64 {
 	if m != nil {
 		return m.SessionId
 	}
 	return 0
 }
 
-func (m *SaveResponse) GetStatus() bool {
+type ImportRequest struct {
+	SessionId            uint64   `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	Alias                string   `protobuf:"bytes,2,opt,name=alias,proto3" json:"alias,omitempty"`
+	Force                bool     `protobuf:"varint,3,opt,name=force,proto3" json:"force,omitempty"`
+	PubKey               string   `protobuf:"bytes,4,opt,name=pub_key,json=pubKey,proto3" json:"pub_key,omitempty"`
+	PrivKey              string   `protobuf:"bytes,5,opt,name=priv_key,json=privKey,proto3" json:"priv_key,omitempty"`
+	Passphrase           string   `protobuf:"bytes,6,opt,name=passphrase,proto3" json:"passphrase,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ImportRequest) Reset()         { *m = ImportRequest{} }
+func (m *ImportRequest) String() string { return proto.CompactTextString(m) }
+func (*ImportRequest) ProtoMessage()    {}
+func (*ImportRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_2bc2336598a3f7e0, []int{10}
+}
+
+func (m *ImportRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ImportRequest.Unmarshal(m, b)
+}
+func (m *ImportRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ImportRequest.Marshal(b, m, deterministic)
+}
+func (m *ImportRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ImportRequest.Merge(m, src)
+}
+func (m *ImportRequest) XXX_Size() int {
+	return xxx_messageInfo_ImportRequest.Size(m)
+}
+func (m *ImportRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ImportRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ImportRequest proto.InternalMessageInfo
+
+func (m *ImportRequest) GetSessionId() uint64 {
 	if m != nil {
-		return m.Status
+		return m.SessionId
+	}
+	return 0
+}
+
+func (m *ImportRequest) GetAlias() string {
+	if m != nil {
+		return m.Alias
+	}
+	return ""
+}
+
+func (m *ImportRequest) GetForce() bool {
+	if m != nil {
+		return m.Force
 	}
 	return false
 }
 
-func (m *SaveResponse) GetMsg() string {
+func (m *ImportRequest) GetPubKey() string {
 	if m != nil {
-		return m.Msg
+		return m.PubKey
 	}
 	return ""
+}
+
+func (m *ImportRequest) GetPrivKey() string {
+	if m != nil {
+		return m.PrivKey
+	}
+	return ""
+}
+
+func (m *ImportRequest) GetPassphrase() string {
+	if m != nil {
+		return m.Passphrase
+	}
+	return ""
+}
+
+type ImportResponse struct {
+	SessionId            uint64   `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ImportResponse) Reset()         { *m = ImportResponse{} }
+func (m *ImportResponse) String() string { return proto.CompactTextString(m) }
+func (*ImportResponse) ProtoMessage()    {}
+func (*ImportResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_2bc2336598a3f7e0, []int{11}
+}
+
+func (m *ImportResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ImportResponse.Unmarshal(m, b)
+}
+func (m *ImportResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ImportResponse.Marshal(b, m, deterministic)
+}
+func (m *ImportResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ImportResponse.Merge(m, src)
+}
+func (m *ImportResponse) XXX_Size() int {
+	return xxx_messageInfo_ImportResponse.Size(m)
+}
+func (m *ImportResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ImportResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ImportResponse proto.InternalMessageInfo
+
+func (m *ImportResponse) GetSessionId() uint64 {
+	if m != nil {
+		return m.SessionId
+	}
+	return 0
 }
 
 func init() {
@@ -549,41 +614,45 @@ func init() {
 	proto.RegisterType((*LockResponse)(nil), "protocol.LockResponse")
 	proto.RegisterType((*UnlockRequest)(nil), "protocol.UnlockRequest")
 	proto.RegisterType((*UnlockResponse)(nil), "protocol.UnlockResponse")
-	proto.RegisterType((*SaveRequest)(nil), "protocol.SaveRequest")
-	proto.RegisterType((*SaveResponse)(nil), "protocol.SaveResponse")
+	proto.RegisterType((*CreateRequest)(nil), "protocol.CreateRequest")
+	proto.RegisterType((*CreateResponse)(nil), "protocol.CreateResponse")
+	proto.RegisterType((*ImportRequest)(nil), "protocol.ImportRequest")
+	proto.RegisterType((*ImportResponse)(nil), "protocol.ImportResponse")
 }
 
 func init() { proto.RegisterFile("protocol.proto", fileDescriptor_2bc2336598a3f7e0) }
 
 var fileDescriptor_2bc2336598a3f7e0 = []byte{
-	// 426 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x53, 0xdf, 0x4b, 0xfa, 0x50,
-	0x14, 0x67, 0x3a, 0xe7, 0x3c, 0xfe, 0xf8, 0xea, 0x85, 0xaf, 0xae, 0x45, 0x30, 0xee, 0x4b, 0x83,
-	0x48, 0xc8, 0x08, 0x82, 0x5e, 0x12, 0x7a, 0x28, 0xec, 0xa5, 0x49, 0x04, 0x41, 0xc8, 0x9c, 0xb7,
-	0x1c, 0xea, 0xb6, 0x76, 0x37, 0x61, 0xaf, 0xfd, 0x49, 0xfd, 0x85, 0xb1, 0xed, 0xce, 0xdd, 0x54,
-	0x48, 0xd0, 0xb7, 0x7b, 0x7e, 0x7d, 0xce, 0xe7, 0x7e, 0xce, 0x39, 0xd0, 0xf0, 0x7c, 0x37, 0x70,
-	0x2d, 0x77, 0xde, 0x4d, 0x1e, 0x48, 0xce, 0x6c, 0xb5, 0x6e, 0x5a, 0x96, 0x1b, 0x3a, 0x41, 0x1a,
-	0xc0, 0x17, 0xd0, 0xbc, 0x37, 0x9d, 0xc9, 0x70, 0x6a, 0xce, 0x88, 0x41, 0x3e, 0x43, 0x42, 0x03,
-	0x74, 0x02, 0x40, 0x09, 0xa5, 0xb6, 0xeb, 0x8c, 0xec, 0x89, 0x22, 0x68, 0x82, 0x2e, 0x1a, 0x15,
-	0xe6, 0x79, 0x98, 0xe0, 0x77, 0x68, 0x71, 0x25, 0xd4, 0x73, 0x1d, 0x4a, 0xfe, 0xa8, 0x41, 0x1d,
-	0x28, 0x7b, 0xe1, 0x78, 0x34, 0x23, 0x91, 0x52, 0xd0, 0x04, 0xbd, 0x62, 0x48, 0x5e, 0x38, 0x1e,
-	0x90, 0x08, 0x1d, 0x81, 0xec, 0xf9, 0xf6, 0x32, 0x89, 0x14, 0x93, 0x48, 0x39, 0xb6, 0x07, 0x24,
-	0xc2, 0x7d, 0xa8, 0x3d, 0x85, 0xc4, 0x8f, 0x76, 0xa3, 0x85, 0x10, 0x88, 0x8e, 0xb9, 0x20, 0x0c,
-	0x3f, 0x79, 0xe3, 0x37, 0xa8, 0x33, 0x88, 0xdd, 0x68, 0x9e, 0x83, 0xcc, 0xe4, 0xa1, 0x4a, 0x41,
-	0x2b, 0xea, 0xd5, 0x5e, 0xab, 0xbb, 0x52, 0xb2, 0x9f, 0x46, 0x8c, 0x55, 0x0a, 0xbe, 0x85, 0xea,
-	0xa3, 0x6b, 0xcd, 0xf6, 0x20, 0xf8, 0x02, 0xb5, 0x14, 0x61, 0x37, 0x7e, 0x6d, 0x90, 0x68, 0x60,
-	0x06, 0x21, 0x4d, 0x40, 0x64, 0x83, 0x59, 0xa8, 0x09, 0xc5, 0x05, 0xfd, 0x60, 0x02, 0xc6, 0x4f,
-	0xfc, 0x0a, 0xf5, 0x67, 0x67, 0xbe, 0x17, 0xb9, 0xb8, 0x9b, 0x65, 0x7b, 0x53, 0xe2, 0x33, 0x60,
-	0x66, 0xe1, 0x2f, 0x01, 0x1a, 0x19, 0xf8, 0x81, 0x79, 0xa3, 0x53, 0xf8, 0x47, 0x1c, 0xcb, 0x8f,
-	0xbc, 0x60, 0xc4, 0x64, 0x56, 0x44, 0x4d, 0xd0, 0x6b, 0x46, 0x83, 0xb9, 0xd9, 0x14, 0xf0, 0x02,
-	0xaa, 0x43, 0x73, 0x49, 0xf6, 0xf8, 0xde, 0x19, 0x94, 0xb3, 0x16, 0x31, 0x81, 0xad, 0xb3, 0xce,
-	0x32, 0xe2, 0x41, 0xa5, 0xed, 0x0e, 0xfc, 0xe1, 0xde, 0x77, 0x01, 0x4a, 0xfd, 0xb9, 0x6d, 0x11,
-	0x74, 0x07, 0x95, 0xd5, 0x5d, 0x21, 0x35, 0xe7, 0xb2, 0x7e, 0x9f, 0xea, 0xf1, 0xd6, 0x18, 0x23,
-	0x76, 0x0d, 0xa5, 0x64, 0xe5, 0x51, 0x3b, 0xcf, 0xe2, 0xcf, 0x48, 0xed, 0x6c, 0xf8, 0x59, 0xe5,
-	0x15, 0x88, 0xf1, 0x2e, 0xa2, 0xff, 0x79, 0x02, 0xb7, 0xdd, 0x6a, 0x7b, 0xdd, 0xcd, 0xca, 0x6e,
-	0x40, 0x4a, 0x97, 0x01, 0x71, 0xc8, 0xbf, 0x76, 0x4f, 0x55, 0x36, 0x03, 0x79, 0xcf, 0x58, 0x56,
-	0xbe, 0x27, 0x37, 0x55, 0xbe, 0x27, 0xaf, 0xfe, 0x58, 0x4a, 0xdc, 0x97, 0x3f, 0x01, 0x00, 0x00,
-	0xff, 0xff, 0xa9, 0x7f, 0xe4, 0x81, 0xe7, 0x04, 0x00, 0x00,
+	// 450 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x53, 0xcf, 0x6f, 0x9b, 0x30,
+	0x14, 0x16, 0x6d, 0xa0, 0xf0, 0x5a, 0xaa, 0xd5, 0xea, 0xda, 0x8c, 0xfd, 0x50, 0xc5, 0x29, 0x97,
+	0x76, 0x52, 0xa7, 0x49, 0x93, 0x7a, 0xea, 0xb2, 0xc3, 0xa2, 0xec, 0x90, 0x31, 0xed, 0x38, 0x21,
+	0x07, 0x3c, 0x05, 0x85, 0x61, 0xcf, 0x86, 0x48, 0xec, 0x8f, 0xda, 0x7f, 0xb7, 0xfb, 0x14, 0x6c,
+	0xc0, 0x90, 0x48, 0x43, 0x8a, 0x76, 0xc3, 0xef, 0xf3, 0xf7, 0xbe, 0xcf, 0x8f, 0xef, 0xc1, 0x39,
+	0xe3, 0x34, 0xa7, 0x11, 0x4d, 0xef, 0xaa, 0x0f, 0x64, 0xd7, 0x67, 0xcf, 0xc5, 0x51, 0x44, 0x8b,
+	0x2c, 0x97, 0x80, 0x8f, 0xe0, 0xc9, 0x47, 0x9c, 0xc5, 0x5f, 0x56, 0x78, 0x4d, 0x02, 0xf2, 0xb3,
+	0x20, 0x22, 0xf7, 0x53, 0xb8, 0xd0, 0x6a, 0x82, 0xd1, 0x4c, 0x10, 0xf4, 0x12, 0x40, 0x10, 0x21,
+	0x12, 0x9a, 0x85, 0x49, 0x3c, 0x36, 0x6e, 0x8c, 0xc9, 0x28, 0x70, 0x54, 0x65, 0x16, 0x23, 0x0f,
+	0x1c, 0x11, 0xb2, 0x62, 0x19, 0xae, 0x49, 0x39, 0x3e, 0xba, 0x31, 0x26, 0x4e, 0x70, 0x22, 0x16,
+	0xc5, 0x72, 0x4e, 0x4a, 0xf4, 0x02, 0x40, 0x84, 0x8c, 0x27, 0x9b, 0x0a, 0x3c, 0xae, 0x40, 0x5b,
+	0x2c, 0x78, 0xb2, 0x99, 0x93, 0xd2, 0x9f, 0xc2, 0xd9, 0xe7, 0x82, 0xf0, 0x52, 0xa9, 0xff, 0x4b,
+	0xe8, 0x12, 0x4c, 0x9c, 0x26, 0x58, 0x28, 0x11, 0x79, 0xf0, 0xbf, 0x81, 0xab, 0x9a, 0x0c, 0xb3,
+	0x7b, 0x0b, 0xb6, 0x9a, 0xc3, 0xb6, 0xd1, 0xf1, 0xe4, 0xf4, 0xfe, 0xe2, 0xae, 0x19, 0xd9, 0xa3,
+	0x44, 0x82, 0xe6, 0x8a, 0xff, 0x1e, 0x4e, 0x3f, 0xd1, 0x68, 0x7d, 0x90, 0xc5, 0x5b, 0x38, 0x93,
+	0x3d, 0x06, 0x39, 0xf4, 0x63, 0x70, 0xbf, 0x66, 0xe9, 0x81, 0xa2, 0xe8, 0x15, 0x00, 0xc3, 0x42,
+	0xb0, 0x15, 0xc7, 0x82, 0xa8, 0xd1, 0x6b, 0x15, 0xff, 0x35, 0x9c, 0xd7, 0x2a, 0xc3, 0x6c, 0xfd,
+	0x02, 0x77, 0xca, 0x09, 0xce, 0xc9, 0x41, 0xb6, 0x2e, 0xc1, 0xfc, 0x4e, 0x79, 0x24, 0x1d, 0xd9,
+	0x81, 0x3c, 0xf4, 0xcc, 0x8e, 0xf6, 0x99, 0xad, 0xb5, 0x87, 0x99, 0xfd, 0x6d, 0x80, 0x3b, 0xfb,
+	0xc1, 0x28, 0xcf, 0xff, 0x83, 0xdb, 0x6b, 0x38, 0xa9, 0xf3, 0x2e, 0xad, 0x5a, 0x4c, 0xc6, 0xfd,
+	0x19, 0xd8, 0x4d, 0xd8, 0x4d, 0xb9, 0x09, 0x4c, 0x66, 0xbd, 0xf7, 0x42, 0x6b, 0xdf, 0x0b, 0x6b,
+	0xbf, 0x83, 0x5e, 0x78, 0xff, 0xe7, 0x08, 0xcc, 0xc7, 0x34, 0x89, 0x08, 0xfa, 0x00, 0x4e, 0xb3,
+	0xb4, 0xc8, 0x6b, 0xc3, 0xdc, 0xdf, 0x6e, 0xef, 0xf9, 0x5e, 0x4c, 0xc9, 0xbd, 0x03, 0xb3, 0xda,
+	0x23, 0x74, 0xd5, 0xde, 0xd2, 0xb7, 0xd3, 0xbb, 0xde, 0xa9, 0x2b, 0xe6, 0x5b, 0x18, 0x6d, 0xe3,
+	0x8d, 0x9e, 0xb6, 0x17, 0xb4, 0x95, 0xf1, 0xae, 0xfa, 0x65, 0x45, 0x7b, 0x00, 0x4b, 0x06, 0x10,
+	0x69, 0x9d, 0x3b, 0xc1, 0xf7, 0xc6, 0xbb, 0x40, 0x4b, 0x96, 0x81, 0xd0, 0xc9, 0x9d, 0x78, 0xea,
+	0xe4, 0x5e, 0x76, 0x1e, 0xc0, 0x92, 0xb3, 0xd6, 0xc9, 0x9d, 0xb4, 0xe8, 0xe4, 0xee, 0x6f, 0x59,
+	0x5a, 0x15, 0xf0, 0xe6, 0x6f, 0x00, 0x00, 0x00, 0xff, 0xff, 0xf1, 0x9d, 0x9d, 0x6b, 0x68, 0x05,
+	0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -603,7 +672,8 @@ type AliceClient interface {
 	Lock(ctx context.Context, in *LockRequest, opts ...grpc.CallOption) (*LockResponse, error)
 	// maybe split the action to unlock and load would be better
 	Unlock(ctx context.Context, in *UnlockRequest, opts ...grpc.CallOption) (*UnlockResponse, error)
-	Save(ctx context.Context, in *SaveRequest, opts ...grpc.CallOption) (*SaveResponse, error)
+	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
+	Import(ctx context.Context, in *ImportRequest, opts ...grpc.CallOption) (*ImportResponse, error)
 }
 
 type aliceClient struct {
@@ -650,9 +720,18 @@ func (c *aliceClient) Unlock(ctx context.Context, in *UnlockRequest, opts ...grp
 	return out, nil
 }
 
-func (c *aliceClient) Save(ctx context.Context, in *SaveRequest, opts ...grpc.CallOption) (*SaveResponse, error) {
-	out := new(SaveResponse)
-	err := c.cc.Invoke(ctx, "/protocol.Alice/Save", in, out, opts...)
+func (c *aliceClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
+	out := new(CreateResponse)
+	err := c.cc.Invoke(ctx, "/protocol.Alice/Create", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aliceClient) Import(ctx context.Context, in *ImportRequest, opts ...grpc.CallOption) (*ImportResponse, error) {
+	out := new(ImportResponse)
+	err := c.cc.Invoke(ctx, "/protocol.Alice/Import", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -666,7 +745,8 @@ type AliceServer interface {
 	Lock(context.Context, *LockRequest) (*LockResponse, error)
 	// maybe split the action to unlock and load would be better
 	Unlock(context.Context, *UnlockRequest) (*UnlockResponse, error)
-	Save(context.Context, *SaveRequest) (*SaveResponse, error)
+	Create(context.Context, *CreateRequest) (*CreateResponse, error)
+	Import(context.Context, *ImportRequest) (*ImportResponse, error)
 }
 
 func RegisterAliceServer(s *grpc.Server, srv AliceServer) {
@@ -745,20 +825,38 @@ func _Alice_Unlock_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Alice_Save_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SaveRequest)
+func _Alice_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AliceServer).Save(ctx, in)
+		return srv.(AliceServer).Create(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protocol.Alice/Save",
+		FullMethod: "/protocol.Alice/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AliceServer).Save(ctx, req.(*SaveRequest))
+		return srv.(AliceServer).Create(ctx, req.(*CreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Alice_Import_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ImportRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AliceServer).Import(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protocol.Alice/Import",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AliceServer).Import(ctx, req.(*ImportRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -784,8 +882,12 @@ var _Alice_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Alice_Unlock_Handler,
 		},
 		{
-			MethodName: "Save",
-			Handler:    _Alice_Save_Handler,
+			MethodName: "Create",
+			Handler:    _Alice_Create_Handler,
+		},
+		{
+			MethodName: "Import",
+			Handler:    _Alice_Import_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
